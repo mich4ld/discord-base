@@ -39,6 +39,11 @@ export class DiscordBot {
         return this;
     }
 
+    removeCommand(command: string) {
+        delete this.commands[command];
+        return this;
+    }
+
     addListeners(method: (client: Client) => any) {
         method(this.client);
         return this;
@@ -77,8 +82,7 @@ export class DiscordBot {
             }
         })
 
-        this.client
-            .on('error', (err) => console.log(`Error: ${err.message}`))
+        this.client.on('error', (err) => console.log(`Error: ${err.message}`))
 
         this.client.login(this.config.token);
     }

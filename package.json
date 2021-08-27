@@ -1,12 +1,12 @@
 {
   "name": "@mich4l/discord-base",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "TypeScript Discord.js abstraction",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mich4ld/discord-base.git"
-   },
+  },
   "scripts": {
     "test": "jest",
     "build": "tsc"
@@ -24,6 +24,7 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "~13.1.0",
+    "reflect-metadata": "^0.1.13",
     "typedi": "^0.10.0"
   }
 }
