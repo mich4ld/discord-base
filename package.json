@@ -23,7 +23,7 @@
   "author": "mich4ld",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^13.1.0",
+    "discord.js": "~13.1.0",
     "typedi": "^0.10.0"
   }
 }
