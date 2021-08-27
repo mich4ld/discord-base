@@ -1,0 +1,25 @@
+{
+  "name": "discord-base",
+  "version": "1.0.0",
+  "description": "TypeScript Discord.js abstraction",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "keywords": [
+    "discord",
+    "discord.js",
+    "discordjs",
+    "typescript",
+    "typedi",
+    "di",
+    "simple"
+  ],
+  "author": "mich4ld",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^13.1.0",
+    "typedi": "^0.10.0"
+  }
+}
