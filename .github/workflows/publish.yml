@@ -25,6 +25,8 @@ jobs:
         registry-url: https://registry.npmjs.org
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+    - run: npm i
+    - run: npm i typescript
     - run: npm run build --if-present
     - run: npm publish --access public
     
