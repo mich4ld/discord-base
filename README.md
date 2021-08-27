@@ -1,4 +1,3 @@
-![Group 1(1)](https://user-images.githubusercontent.com/43048524/131164717-e9ed4291-1eb3-4dbc-bfab-fb20f0f4dc19.png)
 # Discord TypeScript Base
 Simple TypeScript abstraction for creating Discord bots (using `discord.js` and `typedi`)
 
