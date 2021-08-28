@@ -1,5 +1,5 @@
 
-![Group 2](https://user-images.githubusercontent.com/43048524/131166986-97187bd2-57e0-451f-8a1e-b54136a8b42b.png)
+![Logo](https://user-images.githubusercontent.com/43048524/131166986-97187bd2-57e0-451f-8a1e-b54136a8b42b.png)
 # Discord TypeScript Base
 Simple TypeScript abstraction for creating Discord bots (using `discord.js` and `typedi`)
 
@@ -53,4 +53,26 @@ export class ExampleService {
         return 'Hello world';
     }
 }
+```
+
+### Configuration example
+```ts
+const discordBot = new DiscordBot({
+    token,
+    activity: 'CS:GO',
+    name: 'New bot name',
+    prefix: '/'
+});
+```
+
+### DiscordBot instance methods
+```ts
+const discordBot = new DiscordBot();
+
+discordBot
+.addCommand('help', HelpCommand)
+.addListeners(client => {
+    // access to client variable (read discord.js docs)
+})
+.removeCommand('help')
 ```
