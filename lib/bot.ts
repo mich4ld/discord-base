@@ -2,7 +2,7 @@ import { CommandHandler } from "./commands";
 import { ActivityOptions, Client, Message } from 'discord.js';
 import { Container } from 'typedi';
 import { logError, parseCommand } from "./utils";
-import { buildConfig, DiscordConfig } from "./config";
+import { buildConfig, DiscordConfig, InputDiscordConfig } from "./config";
 
 interface Command {
     handler: any;
@@ -17,9 +17,12 @@ export class DiscordBot {
     private commands: Map<string, Command> = new Map();
 
 
-    constructor(config: Partial<DiscordConfig>) {
-        this.config = buildConfig(config);
+    constructor(config: InputDiscordConfig) {
+        const { appConfig, clientConfig } = buildConfig(config);
+        this.config = appConfig;
+        
         this.client = new Client({
+            ...clientConfig,
             intents: this.config.intents,
         });
 

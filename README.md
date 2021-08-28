@@ -66,6 +66,7 @@ const discordBot = new DiscordBot({
     avatarURL: '<PHOTO_URL>', // default: undefined
     prefix: '!',
     ignoreBots: true // ignoring commands from other bots
+    // ... and more from discord.js ClientOptions
 });
 ```
 

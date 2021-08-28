@@ -1,4 +1,4 @@
-import { ActivityOptions, Intents } from 'discord.js';
+import { ActivityOptions, ClientOptions, Intents } from 'discord.js';
 
 export interface DiscordConfig {
     token: string;
@@ -13,9 +13,10 @@ export interface DiscordConfig {
 export const DEFAULT_INTENTS = [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES];
 export const DEFAULT_PREFIX = '!';
 
-export function buildConfig(config: Partial<DiscordConfig>): DiscordConfig {
-    let token: string | undefined;
+export type InputDiscordConfig = Partial<ClientOptions> & Partial<DiscordConfig>;
 
+export function buildConfig(config: InputDiscordConfig) {
+    let token: string | undefined;
     if (process.env.DISCORD_TOKEN) {
         token = process.env.DISCORD_TOKEN;
     }
@@ -28,15 +29,20 @@ export function buildConfig(config: Partial<DiscordConfig>): DiscordConfig {
         throw Error('Error: Token is required!');
     }
 
-    const defaultConfig: DiscordConfig = {
+    const { activity, prefix, name, intents, avatarURL, ignoreBots, ...clientConfig } = config;
+
+    const appConfig: DiscordConfig = {
         token,
-        activity: config.activity,
-        prefix: config.prefix || DEFAULT_PREFIX,
-        intents: config.intents || DEFAULT_INTENTS,
-        name: config.name,
-        avatarURL: config.avatarURL,
-        ignoreBots: config.ignoreBots || true,
+        activity: activity,
+        prefix: prefix || DEFAULT_PREFIX,
+        intents: intents || DEFAULT_INTENTS,
+        name: name,
+        avatarURL: avatarURL,
+        ignoreBots: ignoreBots || true,
     }
 
-    return defaultConfig
+    return {
+        appConfig,
+        clientConfig
+    }
 }
