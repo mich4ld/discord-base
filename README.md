@@ -1,6 +1,6 @@
 
 ![Logo](https://user-images.githubusercontent.com/43048524/131166986-97187bd2-57e0-451f-8a1e-b54136a8b42b.png)
-# Discord TypeScript Base
+# Discord bot TypeScript base
 Simple TypeScript abstraction for creating Discord bots (using `discord.js` and `typedi`)
 
 ### Installation
@@ -79,4 +79,5 @@ discordBot
     // access to client variable (read discord.js docs)
 })
 .removeCommand('help')
+.clearCommands() // removes all commands
 ```

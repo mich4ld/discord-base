@@ -46,6 +46,12 @@ export class DiscordBot {
         return this;
     }
 
+    clearCommands() {
+        this.commands.clear();
+        console.log(`Notice: All commands removed`);
+        return this;
+    }
+
     addListeners(method: (client: Client) => any) {
         method(this.client);
         return this;
