@@ -7,6 +7,7 @@ export interface DiscordConfig {
     prefix: string;
     intents: number[];
     avatarURL?: string;
+    ignoreBots?: boolean;
 }
 
 export const DEFAULT_INTENTS = [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES];
@@ -27,13 +28,14 @@ export function buildConfig(config: Partial<DiscordConfig>): DiscordConfig {
         throw Error('Error: Token is required!');
     }
 
-    const defaultConfig = {
+    const defaultConfig: DiscordConfig = {
         token,
         activity: config.activity,
         prefix: config.prefix || DEFAULT_PREFIX,
         intents: config.intents || DEFAULT_INTENTS,
         name: config.name,
         avatarURL: config.avatarURL,
+        ignoreBots: config.ignoreBots || true,
     }
 
     return defaultConfig

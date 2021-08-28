@@ -1,13 +1,21 @@
-import { CommandsMap } from "./commands";
+import { CommandHandler } from "./commands";
 import { ActivityOptions, Client, Message } from 'discord.js';
 import { Container } from 'typedi';
-import { parseCommand } from "./utils";
+import { logError, parseCommand } from "./utils";
 import { buildConfig, DiscordConfig } from "./config";
+
+interface Command {
+    handler: any;
+    roles?: string[];
+}
 
 export class DiscordBot {
     private config: DiscordConfig;
     private client: Client<boolean>;
-    private commands: CommandsMap = { }
+
+    // command sets:
+    private commands: Map<string, Command> = new Map();
+
 
     constructor(config: Partial<DiscordConfig>) {
         this.config = buildConfig(config);
@@ -18,13 +26,23 @@ export class DiscordBot {
         this.bootstrapBot();
     }
 
+    addCommandForRoles(command: string, handler: any, roles: string[]) {
+        this.commands.set(command, { roles, handler });
+        return this;
+    }
+
+
     addCommand(command: string, handler: any) {
-        this.commands[command] = handler;
+        this.commands.set(command, { handler });
         return this;
     }
 
     removeCommand(command: string) {
-        delete this.commands[command];
+        const isRemoved = this.commands.delete(command);
+        if (isRemoved) { 
+            console.log(`Notice: Command ${this.config.prefix}${command} has been removed`);
+        }
+
         return this;
     }
 
@@ -33,16 +51,23 @@ export class DiscordBot {
         return this;
     }
 
-    private async handleCommand(msg: Message, args: string[], command: string) {
-        const handler = this.commands[command];
-        if (!handler) {
+    private async handleCommand(msg: Message, args: string[], commandName: string) {
+        const command = this.commands.get(commandName);
+        if (!command) {
             console.log('Notice: Command not exists');
             return;
         }
 
+        if (command.roles && msg.member) {
+            const hasPermission = msg.member.roles.cache.some(role => command.roles!.includes(role.name));
+            if (!hasPermission) {
+                return;
+            }
+        }
+
         try {
-            const handlerInstance = Container.get(handler);
-            await handlerInstance.handle(msg, args, command);
+            const handlerInstance = Container.get<CommandHandler>(command.handler);
+            await handlerInstance.handle(msg, args, commandName);
         } catch (error) {
             console.log(`Error: Critial error`);
             console.error(error);
@@ -50,6 +75,10 @@ export class DiscordBot {
     }
 
     private onMessageCreate = async (msg: Message) => {
+        if (msg.author.bot && this.config.ignoreBots) {
+            return;
+        }
+
         const parsedCommand = parseCommand(msg.content, this.config.prefix);
         if(parsedCommand) {
             const { commandName, args } = parsedCommand;
@@ -67,23 +96,35 @@ export class DiscordBot {
         }
     }
 
-    private configureName(name?: string) {
-        if (this.client.user && name) {
-            this.client.user.setUsername(name);
+    private async configureName(name?: string) {
+        if (this.client.user && name && this.client.user.username !== name) {
+            try {
+                const oldName = this.client.user.username;
+                await this.client.user.setUsername(name);
+                console.log(`Notice: Changed bot's name from ${oldName} to ${name}`);
+            } catch (err) {
+                logError(err);
+            }
         }
     }
 
-    private configureAvatar(url?: string) {
+    private async configureAvatar(url?: string) {
         if (this.client.user && url) {
-            this.client.user.setAvatar(url);
+            try {
+                await this.client.user.setAvatar(url);      
+                console.log("Notice: Changed bot's avatar");
+            } catch (err) {
+                logError(err);
+            }
         }
     }
 
-    private onReady = () => {
-        console.log(`Logged in as ${this.client.user?.tag}!`);
+    private onReady = async () => {
         this.configureActivity(this.config.activity);
-        this.configureName(this.config.name);
-        this.configureAvatar(this.config.avatarURL);
+        await this.configureName(this.config.name);
+        await this.configureAvatar(this.config.avatarURL);
+        
+        console.log(`Logged in as ${this.client.user?.tag}!`);
     }
 
     private onError = (err: Error) => {

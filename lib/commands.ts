@@ -5,7 +5,3 @@ export class CommandHandler {
         console.log('Handling command')
     }
 }
-
-export interface CommandsMap {
-    [x: string]: typeof CommandHandler
-}

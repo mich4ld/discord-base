@@ -16,3 +16,11 @@ export function parseCommand(content: string, prefix: string) {
 
     return;
 }
+
+export function logError(err: unknown) {
+    if (err instanceof Error) {
+        console.log('Error:', err.message);
+    } else {
+        console.error(err);
+    }
+}
