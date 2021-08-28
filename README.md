@@ -63,7 +63,8 @@ const discordBot = new DiscordBot({
     activity: 'CS:GO',
     name: 'New bot name',
     avatarURL: '<PHOTO_URL>'
-    prefix: '!'
+    prefix: '!',
+    ignoreBots: true // ignoring commands from other bots
 });
 ```
 
