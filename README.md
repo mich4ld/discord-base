@@ -4,6 +4,7 @@
 Simple TypeScript abstraction for creating Discord bots (using `discord.js` and `typedi`)
 
 ### Installation
+`Important`: Node.js 16.6.0 or newer is required.
 ```sh
 npm i @mich4l/discord-base
 ```
@@ -59,7 +60,7 @@ export class ExampleService {
 `Notice`: option `avatarURL` changes bot's avatar every time when app starts.
 ```ts
 const discordBot = new DiscordBot({
-    token, // process.env.DISCORD_TOKEN by default, throw error if not specified
+    token,
     activity: 'CS:GO', // default: undefined
     name: 'New bot name', // default: undefined
     avatarURL: '<PHOTO_URL>', // default: undefined
