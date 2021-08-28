@@ -5,7 +5,6 @@ export interface DiscordConfig {
     activity?: ActivityOptions | string;
     name?: string;
     prefix: string;
-    intents: number[];
     avatarURL?: string;
     ignoreBots?: boolean;
 }
@@ -29,13 +28,12 @@ export function buildConfig(config: InputDiscordConfig) {
         throw Error('Error: Token is required!');
     }
 
-    const { activity, prefix, name, intents, avatarURL, ignoreBots, ...clientConfig } = config;
+    const { activity, prefix, name, avatarURL, ignoreBots, ...clientConfig } = config;
 
     const appConfig: DiscordConfig = {
         token,
         activity: activity,
         prefix: prefix || DEFAULT_PREFIX,
-        intents: intents || DEFAULT_INTENTS,
         name: name,
         avatarURL: avatarURL,
         ignoreBots: ignoreBots || true,
