@@ -1,24 +1,14 @@
 import { CommandsMap } from "./commands";
-import { Client, Intents, Message } from 'discord.js';
+import { Client, Message } from 'discord.js';
 import { Container } from 'typedi';
-
-interface DiscordConfig {
-    token: string;
-    activity?: string;
-    prefix?: string;
-    intents?: number[];
-}
+import { parseCommand } from "./utils";
+import { defaultConfig, DiscordConfig } from "./config";
 
 export class DiscordBot {
-    private config: Required<DiscordConfig> = {
-        activity: 'Bot',
-        token: '',
-        prefix: '!',
-        intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
-    }
+    private config: Required<DiscordConfig> = defaultConfig;
+    private client: Client<boolean>;
 
     private commands: CommandsMap = { }
-    private client: Client<boolean>;
 
     constructor(config: DiscordConfig) {
         this.config = { ...this.config, ...config };
@@ -51,7 +41,6 @@ export class DiscordBot {
 
     private async handleCommand(msg: Message, args: string[], command: string) {
         const handler = this.commands[command];
-
         if (!handler) {
             console.log('Notice: Command not exists');
             return;
@@ -67,22 +56,28 @@ export class DiscordBot {
         
     }
 
+    private onMessageCreate = async (msg: Message) => {
+        const parsedCommand = parseCommand(msg.content, this.config.prefix);
+        if(parsedCommand) {
+            const { commandName, args } = parsedCommand;
+            await this.handleCommand(msg, args, commandName);
+        }
+    }
+
+    private onReady = () => {
+        console.log(`Logged in as ${this.client.user?.tag}!`);
+        this.client.user?.setActivity(this.config.activity!);
+    }
+
+    private onError = (err: Error) => {
+        console.log(`Error: ${err.message}`)
+    }
+
     private bootstrapBot() {
-        this.client.on("ready", () => {
-            console.log(`Logged in as ${this.client.user?.tag}!`);
-            this.client.user?.setActivity(this.config.activity!);
-          });
-
-        this.client.on("messageCreate", async msg => {
-            if(msg.content.startsWith(this.config.prefix)) {
-                const commandWithPrefix = msg.content.split(this.config.prefix);
-                const [ commandName, ...args ] = commandWithPrefix[1].split(' ');
-                
-                await this.handleCommand(msg, args, commandName);
-            }
-        })
-
-        this.client.on('error', (err) => console.log(`Error: ${err.message}`))
+        this.client
+            .on("ready", this.onReady)
+            .on("messageCreate", this.onMessageCreate)
+            .on('error', this.onError)
 
         this.client.login(this.config.token);
     }

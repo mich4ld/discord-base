@@ -5,3 +5,5 @@ export { Service } from 'typedi';
 
 export { DiscordBot } from './bot';
 export { CommandHandler } from './commands';
+
+export { joinArgs, parseCommand } from './utils';
