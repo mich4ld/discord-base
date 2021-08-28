@@ -56,11 +56,13 @@ export class ExampleService {
 ```
 
 ### Configuration example
+`Notice`: options like `name` and `avatarURL` changing bot's name or avatar every time when app start.
 ```ts
 const discordBot = new DiscordBot({
     token,
     activity: 'CS:GO',
     name: 'New bot name',
+    avatarURL: '<PHOTO_URL>'
     prefix: '/'
 });
 ```

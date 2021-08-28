@@ -6,6 +6,7 @@ export interface DiscordConfig {
     name?: string;
     prefix: string;
     intents: number[];
+    avatarURL?: string;
 }
 
 export const DEFAULT_INTENTS = [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES];
@@ -32,6 +33,7 @@ export function buildConfig(config: Partial<DiscordConfig>): DiscordConfig {
         prefix: config.prefix || DEFAULT_PREFIX,
         intents: config.intents || DEFAULT_INTENTS,
         name: config.name,
+        avatarURL: config.avatarURL,
     }
 
     return defaultConfig

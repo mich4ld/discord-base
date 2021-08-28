@@ -73,10 +73,17 @@ export class DiscordBot {
         }
     }
 
+    private configureAvatar(url?: string) {
+        if (this.client.user && url) {
+            this.client.user.setAvatar(url);
+        }
+    }
+
     private onReady = () => {
         console.log(`Logged in as ${this.client.user?.tag}!`);
         this.configureActivity(this.config.activity);
         this.configureName(this.config.name);
+        this.configureAvatar(this.config.avatarURL);
     }
 
     private onError = (err: Error) => {
