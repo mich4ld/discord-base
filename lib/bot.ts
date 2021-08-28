@@ -1,22 +1,16 @@
 import { CommandsMap } from "./commands";
-import { Client, Message } from 'discord.js';
+import { ActivityOptions, Client, Message } from 'discord.js';
 import { Container } from 'typedi';
 import { parseCommand } from "./utils";
-import { defaultConfig, DiscordConfig } from "./config";
+import { buildConfig, DiscordConfig } from "./config";
 
 export class DiscordBot {
-    private config: Required<DiscordConfig> = defaultConfig;
+    private config: DiscordConfig;
     private client: Client<boolean>;
-
     private commands: CommandsMap = { }
 
-    constructor(config: DiscordConfig) {
-        this.config = { ...this.config, ...config };
-
-        if (!process.env.DISCORD_TOKEN && !config.token) {
-            throw Error('Error: Token is required!');
-        }
-
+    constructor(config: Partial<DiscordConfig>) {
+        this.config = buildConfig(config);
         this.client = new Client({
             intents: this.config.intents,
         });
@@ -53,7 +47,6 @@ export class DiscordBot {
             console.log(`Error: Critial error`);
             console.error(error);
         }
-        
     }
 
     private onMessageCreate = async (msg: Message) => {
@@ -64,9 +57,26 @@ export class DiscordBot {
         }
     }
 
+    private configureActivity(activity?: ActivityOptions | string) {
+        if (this.client.user && activity) {
+            if (typeof activity === 'string') {
+                this.client.user.setActivity({ name: activity });
+            } else {
+                this.client.user.setActivity(activity);
+            }
+        }
+    }
+
+    private configureName(name?: string) {
+        if (this.client.user && name) {
+            this.client.user.setUsername(name);
+        }
+    }
+
     private onReady = () => {
         console.log(`Logged in as ${this.client.user?.tag}!`);
-        this.client.user?.setActivity(this.config.activity!);
+        this.configureActivity(this.config.activity);
+        this.configureName(this.config.name);
     }
 
     private onError = (err: Error) => {
