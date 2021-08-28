@@ -59,10 +59,10 @@ export class ExampleService {
 `Notice`: option `avatarURL` changes bot's avatar every time when app starts.
 ```ts
 const discordBot = new DiscordBot({
-    token,
-    activity: 'CS:GO',
-    name: 'New bot name',
-    avatarURL: '<PHOTO_URL>',
+    token, // process.env.DISCORD_TOKEN by default, throw error if not specified
+    activity: 'CS:GO', // default: undefined
+    name: 'New bot name', // default: undefined
+    avatarURL: '<PHOTO_URL>', // default: undefined
     prefix: '!',
     ignoreBots: true // ignoring commands from other bots
 });
