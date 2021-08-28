@@ -1,7 +1,7 @@
 import { CommandHandler } from "./commands";
 import { ActivityOptions, Client, Message } from 'discord.js';
 import { Container } from 'typedi';
-import { logError, parseCommand } from "./utils";
+import { executeHandler, logError, parseCommand } from "./utils";
 import { buildConfig, DEFAULT_INTENTS, DiscordConfig, InputDiscordConfig } from "./config";
 
 interface Command {
@@ -15,6 +15,7 @@ export class DiscordBot {
 
     // command sets:
     private commands: Map<string, Command> = new Map();
+    private genericHandler: any;
 
 
     constructor(config: InputDiscordConfig) {
@@ -40,9 +41,19 @@ export class DiscordBot {
         return this;
     }
 
+    addGenericHandler(handler: any) {
+        this.genericHandler = handler;
+        return this;
+    }
+
+    removeGenericHandler() {
+        this.genericHandler = undefined;
+        return this;
+    }
+
     removeCommand(command: string) {
         const isRemoved = this.commands.delete(command);
-        if (isRemoved) { 
+        if (isRemoved) {
             console.log(`Notice: Command ${this.config.prefix}${command} has been removed`);
         }
 
@@ -58,41 +69,6 @@ export class DiscordBot {
     addListeners(method: (client: Client) => any) {
         method(this.client);
         return this;
-    }
-
-    private async handleCommand(msg: Message, args: string[], commandName: string) {
-        const command = this.commands.get(commandName);
-        if (!command) {
-            console.log('Notice: Command not exists');
-            return;
-        }
-
-        if (command.roles && msg.member) {
-            const hasPermission = msg.member.roles.cache.some(role => command.roles!.includes(role.name));
-            if (!hasPermission) {
-                return;
-            }
-        }
-
-        try {
-            const handlerInstance = Container.get<CommandHandler>(command.handler);
-            await handlerInstance.handle(msg, args, commandName);
-        } catch (error) {
-            console.log(`Error: Critial error`);
-            console.error(error);
-        }
-    }
-
-    private onMessageCreate = async (msg: Message) => {
-        if (msg.author.bot && this.config.ignoreBots) {
-            return;
-        }
-
-        const parsedCommand = parseCommand(msg.content, this.config.prefix);
-        if(parsedCommand) {
-            const { commandName, args } = parsedCommand;
-            await this.handleCommand(msg, args, commandName);
-        }
     }
 
     private configureActivity(activity?: ActivityOptions | string) {
@@ -125,6 +101,38 @@ export class DiscordBot {
             } catch (err) {
                 logError(err);
             }
+        }
+    }
+
+    private async handleCommand(msg: Message, args: string[], commandName: string) {
+        const command = this.commands.get(commandName);
+        if (!command) {
+            if (this.genericHandler) {
+                await executeHandler(this.genericHandler, msg, args, commandName);
+            }
+
+            return;
+        }
+
+        if (command.roles && msg.member) {
+            const hasPermission = msg.member.roles.cache.some(role => command.roles!.includes(role.name));
+            if (!hasPermission) {
+                return;
+            }
+        }
+
+        await executeHandler(command.handler, msg, args, commandName);
+    }
+
+    private onMessageCreate = async (msg: Message) => {
+        if (msg.author.bot && this.config.ignoreBots) {
+            return;
+        }
+
+        const parsedCommand = parseCommand(msg.content, this.config.prefix);
+        if(parsedCommand) {
+            const { commandName, args } = parsedCommand;
+            await this.handleCommand(msg, args, commandName);
         }
     }
 

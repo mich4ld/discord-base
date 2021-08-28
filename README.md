@@ -77,6 +77,7 @@ const discordBot = new DiscordBot();
 discordBot
 .addCommand('help', HelpCommand)
 .addCommandForRoles('log', LogCommand, ['Mod', 'Pro'])
+.addGenericHandler(HelpCommand) // by default bot is ignoring not registered commands (you can return !help command or just return error message);
 .addListeners(client => {
     // access to client variable (read discord.js docs)
 })
