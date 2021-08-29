@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import Container from "typedi";
-import { CommandHandler } from "./commands";
+import { CommandHandler, EventHandler } from "./commands";
 
 export function joinArgs(args: string[]) {
     if (!args.length) {
@@ -29,12 +29,25 @@ export function logError(err: unknown) {
     }
 }
 
-export async function executeHandler(handler: any, msg: Message, args: string[], commandName?: string) {
+export async function executeCommandHandler(handler: any, msg: Message, args: string[]) {
     try {
         const handlerInstance = Container.get<CommandHandler>(handler);
-        await handlerInstance.handle(msg, args, commandName);
+        await handlerInstance.handle(msg, args);
     } catch (error) {
         console.log(`Error: Critial error`);
         console.error(error);
     }
 }
+
+export function getEventHandler(handler: any) {
+    const handlerInstance = Container.get<EventHandler>(handler);
+
+    return async function executeEventHandler(e: any) {
+        try {
+            await handlerInstance.handle(e);
+        } catch (error) {
+            console.log(`Error: Critial error`);
+            console.error(error);
+        }
+    }
+}   

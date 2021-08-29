@@ -1,13 +1,13 @@
-import { CommandHandler } from "./commands";
-import { ActivityOptions, Client, Message } from 'discord.js';
-import { Container } from 'typedi';
-import { executeHandler, logError, parseCommand } from "./utils";
+import { ActivityOptions, Client, ClientEvents, Message } from 'discord.js';
+import { executeCommandHandler, getEventHandler, logError, parseCommand } from "./utils";
 import { buildConfig, DEFAULT_INTENTS, DiscordConfig, InputDiscordConfig } from "./config";
 
 interface Command {
     handler: any;
     roles?: string[];
 }
+
+type ClientSetup = (client: Client) => any;
 
 export class DiscordBot {
     private config: DiscordConfig;
@@ -31,6 +31,12 @@ export class DiscordBot {
         this.bootstrapBot();
     }
 
+    addEvent(event: keyof ClientEvents, handler: any) {
+        const handleFunc = getEventHandler(handler);
+        this.client.on(event, handleFunc as any);
+        return this;
+    }
+
     addCommandForRoles(command: string, handler: any, roles: string[]) {
         this.commands.set(command, { roles, handler });
         return this;
@@ -46,6 +52,7 @@ export class DiscordBot {
         this.messageHandler = handler;
         return this;
     }
+
 
     addGenericHandler(handler: any) {
         this.genericHandler = handler;
@@ -74,11 +81,6 @@ export class DiscordBot {
     clearCommands() {
         this.commands.clear();
         console.log(`Notice: All commands removed`);
-        return this;
-    }
-
-    addListeners(method: (client: Client) => any) {
-        method(this.client);
         return this;
     }
 
@@ -115,11 +117,16 @@ export class DiscordBot {
         }
     }
 
+    setupClient(method: ClientSetup) {
+        method(this.client);
+        return this;
+    }
+
     private async handleCommand(msg: Message, args: string[], commandName: string) {
         const command = this.commands.get(commandName);
         if (!command) {
             if (this.genericHandler) {
-                await executeHandler(this.genericHandler, msg, args, commandName);
+                await executeCommandHandler(this.genericHandler, msg, args);
             }
 
             return;
@@ -132,7 +139,7 @@ export class DiscordBot {
             }
         }
 
-        await executeHandler(command.handler, msg, args, commandName);
+        await executeCommandHandler(command.handler, msg, args);
     }
 
     private onMessageCreate = async (msg: Message) => {
@@ -148,7 +155,7 @@ export class DiscordBot {
         }
 
         if (this.messageHandler) {
-            await executeHandler(this.messageHandler, msg, [], undefined);
+            await executeCommandHandler(this.messageHandler, msg, []);
         }
     }
 

@@ -56,6 +56,33 @@ export class ExampleService {
 }
 ```
 
+### Events
+You may want react not only to commands - there is also Events concept
+
+`messageDeleted.ts`:
+```ts
+import { EventHandler, Event } from '@mich4l/discord-base';
+import { ExampleService } from '../services/exampleService';
+
+@Event()
+class MessageDeletedEvent implements EventHandler {
+    constructor(
+        private readonly exampleService: ExampleService
+    ) {}
+
+    handle(msg: Message) {
+        const message = this.exampleService.getMessage();
+        msg.channel.send(message);
+    }
+}
+```
+
+`index.ts`:
+```ts
+// some code...
+discordBot.addEvent('messageDelete', MessageDeleted)
+```
+
 ### Configuration example
 `Notice`: option `avatarURL` changes bot's avatar every time when app starts.
 ```ts
@@ -78,9 +105,10 @@ discordBot
 .addCommand('help', HelpCommand)
 .addCommandForRoles('log', LogCommand, ['Mod', 'Pro'])
 .addGenericHandler(HelpCommand) // by default bot is ignoring not registered commands (you can return !help command or just return error message);
-.addListeners(client => {
-    // access to client variable (read discord.js docs)
-})
 .removeCommand('help')
 .clearCommands() // removes all commands
+.addEvent('messageDelete', MessageDeleted)
+.setupClient(client => {
+    console.log(client); // access to client object for more complex operations (read discord.js docs)
+});
 ```
