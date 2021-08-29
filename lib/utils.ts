@@ -29,7 +29,7 @@ export function logError(err: unknown) {
     }
 }
 
-export async function executeHandler(handler: any, msg: Message, args: string[], commandName: string) {
+export async function executeHandler(handler: any, msg: Message, args: string[], commandName?: string) {
     try {
         const handlerInstance = Container.get<CommandHandler>(handler);
         await handlerInstance.handle(msg, args, commandName);

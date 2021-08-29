@@ -16,6 +16,7 @@ export class DiscordBot {
     // command sets:
     private commands: Map<string, Command> = new Map();
     private genericHandler: any;
+    private messageHandler: any;
 
 
     constructor(config: InputDiscordConfig) {
@@ -41,6 +42,11 @@ export class DiscordBot {
         return this;
     }
 
+    addAnyMessageHandler(handler: any) {
+        this.messageHandler = handler;
+        return this;
+    }
+
     addGenericHandler(handler: any) {
         this.genericHandler = handler;
         return this;
@@ -48,6 +54,11 @@ export class DiscordBot {
 
     removeGenericHandler() {
         this.genericHandler = undefined;
+        return this;
+    }
+
+    removeAnyMessageHandler(handler: any) {
+        this.messageHandler = undefined;
         return this;
     }
 
@@ -133,6 +144,11 @@ export class DiscordBot {
         if(parsedCommand) {
             const { commandName, args } = parsedCommand;
             await this.handleCommand(msg, args, commandName);
+            return;
+        }
+
+        if (this.messageHandler) {
+            await executeHandler(this.messageHandler, msg, [], undefined);
         }
     }
 
