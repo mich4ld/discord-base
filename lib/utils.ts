@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import Container from "typedi";
-import { CommandHandler, EventHandler } from "./commands";
+import { CommandHandler, EventFromListener, EventHandler } from "./commands";
 
 export function joinArgs(args: string[]) {
     if (!args.length) {
@@ -29,25 +29,31 @@ export function logError(err: unknown) {
     }
 }
 
-export async function executeCommandHandler(handler: any, msg: Message, args: string[]) {
+function handlerError(err: unknown) {
+    console.log(`Error: Critical error`);
+    console.error(err);
+}
+
+export async function executeCommandHandler(handler: typeof CommandHandler, msg: Message, args: string[]) {
+    const handlerInstance = Container.get<CommandHandler>(handler);
     try {
-        const handlerInstance = Container.get<CommandHandler>(handler);
         await handlerInstance.handle(msg, args);
-    } catch (error) {
-        console.log(`Error: Critial error`);
-        console.error(error);
+    } catch (err) {
+        handlerError(err);
     }
 }
 
-export function getEventHandler(handler: any) {
+export async function executeEventHandler(handler: typeof EventHandler, e: EventFromListener) {
     const handlerInstance = Container.get<EventHandler>(handler);
+    try {
+        await handlerInstance.handle(e);
+    } catch (err) {
+        handlerError(err);
+    }
+}
 
-    return async function executeEventHandler(e: any) {
-        try {
-            await handlerInstance.handle(e);
-        } catch (error) {
-            console.log(`Error: Critial error`);
-            console.error(error);
-        }
+export function getEventHandler(handler: typeof EventHandler) {
+    return async function (e: EventFromListener) {
+        await executeEventHandler(handler, e);
     }
 }   

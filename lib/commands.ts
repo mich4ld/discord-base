@@ -6,7 +6,7 @@ export class CommandHandler {
     }
 }
 
-type EventFromListener = Message | GuildEmoji | GuildChannel | GuildBan | Guild | GuildMember | Invite | Role | Interaction | ThreadChannel | Typing | Sticker | RateLimitData | (User | PartialUser)
+export type EventFromListener = Message | GuildEmoji | GuildChannel | GuildBan | Guild | GuildMember | Invite | Role | Interaction | ThreadChannel | Typing | Sticker | RateLimitData | (User | PartialUser)
 
 export class EventHandler {
     handle(e: EventFromListener): any {

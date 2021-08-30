@@ -9,6 +9,14 @@ Simple TypeScript abstraction for creating Discord bots (using `discord.js` and 
 npm i @mich4l/discord-base
 ```
 
+### Concepts
+![concepts](https://user-images.githubusercontent.com/43048524/131388363-e953424d-9c01-4088-a6af-0b2c48c44b17.png)
+</br>
+#### Type of objects:
+- Command Handler - it's giving you access to Message object and array of commands arguments (strings)
+- Event Handler - it's giving you access to object from event listener (for example: Message, GuildEmoji, GuildChannel...)
+- Service - you can use it for busisness logic of your bot 
+
 ### Code example
 `index.ts`
 ```ts
@@ -83,6 +91,39 @@ class MessageDeletedEvent implements EventHandler {
 discordBot.addEvent('messageDelete', MessageDeleted)
 ```
 
+### React to every message that is not command:
+```ts
+@Handler()
+class MessageEvent implements EventHandler {
+    constructor(
+        private readonly exampleService: ExampleService
+    ) {}
+
+    handle(msg: Message) {
+        const message = this.exampleService.getMessage();
+        msg.channel.send(message);
+    }
+}
+
+discordBot.addAnyMessageHandler(MessageEvent)
+```
+or react to literally every message (commands too):
+```ts
+@Handler()
+class MessageEvent implements EventHandler {
+    constructor(
+        private readonly exampleService: ExampleService
+    ) {}
+
+    handle(msg: Message) {
+        const message = this.exampleService.getMessage();
+        msg.channel.send(message);
+    }
+}
+
+discordBot.addEvent('messageCreate'. MessageEvent)
+```
+
 ### Configuration example
 `Notice`: option `avatarURL` changes bot's avatar every time when app starts.
 ```ts
@@ -105,7 +146,9 @@ discordBot
 .addCommand('help', HelpCommand)
 .addCommandForRoles('log', LogCommand, ['Mod', 'Pro'])
 .addGenericHandler(HelpCommand) // by default bot is ignoring not registered commands (you can return !help command or just return error message);
+.addAnyMessageHandler(AnyMessage) // handling every message (commands are exception)
 .removeCommand('help')
+.removeAnyMessageHandler()
 .clearCommands() // removes all commands
 .addEvent('messageDelete', MessageDeleted)
 .setupClient(client => {

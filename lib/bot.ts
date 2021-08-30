@@ -1,5 +1,5 @@
 import { ActivityOptions, Client, ClientEvents, Message } from 'discord.js';
-import { executeCommandHandler, getEventHandler, logError, parseCommand } from "./utils";
+import { executeCommandHandler, executeEventHandler, getEventHandler, logError, parseCommand } from "./utils";
 import { buildConfig, DEFAULT_INTENTS, DiscordConfig, InputDiscordConfig } from "./config";
 
 interface Command {
@@ -64,7 +64,7 @@ export class DiscordBot {
         return this;
     }
 
-    removeAnyMessageHandler(handler: any) {
+    removeAnyMessageHandler() {
         this.messageHandler = undefined;
         return this;
     }
@@ -155,7 +155,7 @@ export class DiscordBot {
         }
 
         if (this.messageHandler) {
-            await executeCommandHandler(this.messageHandler, msg, []);
+            await executeEventHandler(this.messageHandler, msg);
         }
     }
 
