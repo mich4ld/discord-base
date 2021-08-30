@@ -1,9 +1,10 @@
 import { ActivityOptions, Client, ClientEvents, Message } from 'discord.js';
-import { executeCommandHandler, executeEventHandler, getEventHandler, logError, parseCommand } from "./utils";
+import { parseCommand, logError } from "./utils";
 import { buildConfig, DEFAULT_INTENTS, DiscordConfig, InputDiscordConfig } from "./config";
+import { CommandHandler, EventHandler, executeCommandHandler, executeEventHandler, getEventHandler } from './handlers';
 
 interface Command {
-    handler: any;
+    handler: typeof CommandHandler;
     roles?: string[];
 }
 
@@ -15,8 +16,8 @@ export class DiscordBot {
 
     // command sets:
     private commands: Map<string, Command> = new Map();
-    private genericHandler: any;
-    private messageHandler: any;
+    private genericHandler?: typeof CommandHandler;
+    private messageHandler?: typeof EventHandler;
 
 
     constructor(config: InputDiscordConfig = {}) {
@@ -31,30 +32,30 @@ export class DiscordBot {
         this.bootstrapBot();
     }
 
-    addEvent(event: keyof ClientEvents, handler: any) {
+    addEvent(event: keyof ClientEvents, handler: typeof EventHandler) {
         const handleFunc = getEventHandler(handler);
         this.client.on(event, handleFunc as any);
         return this;
     }
 
-    addCommandForRoles(command: string, handler: any, roles: string[]) {
+    addCommandForRoles(command: string, handler: typeof CommandHandler, roles: string[]) {
         this.commands.set(command, { roles, handler });
         return this;
     }
 
 
-    addCommand(command: string, handler: any) {
+    addCommand(command: string, handler: typeof CommandHandler) {
         this.commands.set(command, { handler });
         return this;
     }
 
-    addAnyMessageHandler(handler: any) {
+    addAnyMessageHandler(handler: typeof EventHandler) {
         this.messageHandler = handler;
         return this;
     }
 
 
-    addGenericHandler(handler: any) {
+    addGenericHandler(handler: typeof CommandHandler) {
         this.genericHandler = handler;
         return this;
     }
