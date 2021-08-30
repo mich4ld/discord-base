@@ -24,12 +24,12 @@ import { DiscordBot } from '@mich4l/discord-base';
 import { ExampleCommand } from './commands/exampleCommand';
 import { token } from './config.json'
 
-const bot = new DiscordBot({
+const discordBot = new DiscordBot({
     token,
     activity: 'CS:GO',
 });
 
-bot.addCommand('example', ExampleCommand);
+discordBot.addCommand('example', ExampleCommand);
 ```
 
 `exampleCommand.ts`
@@ -88,13 +88,13 @@ class MessageDeletedEvent implements EventHandler {
 `index.ts`:
 ```ts
 // some code...
-discordBot.addEvent('messageDelete', MessageDeleted)
+discordBot.addEvent('messageDelete', MessageDeletedEvent)
 ```
 
 ### React to every message that is not command:
 ```ts
 @Handler()
-class MessageEvent implements EventHandler {
+class MessageDeletedEvent implements EventHandler {
     constructor(
         private readonly exampleService: ExampleService
     ) {}
@@ -105,12 +105,12 @@ class MessageEvent implements EventHandler {
     }
 }
 
-discordBot.addAnyMessageHandler(MessageEvent)
+discordBot.addAnyMessageHandler(MessageDeletedEvent)
 ```
 or react to literally every message (commands too):
 ```ts
 @Handler()
-class MessageEvent implements EventHandler {
+class MessageDeletedEvent implements EventHandler {
     constructor(
         private readonly exampleService: ExampleService
     ) {}
@@ -121,7 +121,7 @@ class MessageEvent implements EventHandler {
     }
 }
 
-discordBot.addEvent('messageCreate'. MessageEvent)
+discordBot.addEvent('messageCreate'. MessageDeletedEvent)
 ```
 
 ### Configuration example

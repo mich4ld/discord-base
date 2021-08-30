@@ -1,2 +1,5 @@
 lib/
 example/
+.github/
+tsconfig.json
+.gitignore
