@@ -12,7 +12,7 @@ npm i @mich4l/discord-base
 ### Concepts
 ![concepts](https://user-images.githubusercontent.com/43048524/131388363-e953424d-9c01-4088-a6af-0b2c48c44b17.png)
 </br>
-#### Type of objects:
+#### Types of objects:
 - Command Handler - it's giving you access to Message object and array of command arguments (strings)
 - Event Handler - it's giving you access to object from event listener (for example: Message, GuildEmoji, GuildChannel...)
 - Service - you can use it for busisness logic of your bot 
@@ -154,4 +154,8 @@ discordBot
 .setupClient(client => {
     console.log(client); // access to client object for more complex operations (read discord.js docs)
 });
+```
+
+```ts
+discordBot.destroy() // logout bot;
 ```

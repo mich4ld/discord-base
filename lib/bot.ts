@@ -85,6 +85,10 @@ export class DiscordBot {
         return this;
     }
 
+    destroy() {
+        this.client.destroy();
+    }
+
     private configureActivity(activity?: ActivityOptions | string) {
         if (this.client.user && activity) {
             if (typeof activity === 'string') {
