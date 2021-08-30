@@ -26,11 +26,11 @@ bot.addCommand('example', ExampleCommand);
 
 `exampleCommand.ts`
 ```ts
-import { Command, CommandHandler } from '@mich4l/discord-base';
+import { Handler, CommandHandler } from '@mich4l/discord-base';
 import { Message } from 'discord.js';
 import { ExampleService } from '../services/exampleService';
 
-@Command()
+@Handler()
 export class ExampleCommand implements CommandHandler {
     constructor(
         private readonly exampleService: ExampleService
@@ -61,10 +61,10 @@ You may want react not only to commands - there is also Events concept
 
 `messageDeleted.ts`:
 ```ts
-import { EventHandler, Event } from '@mich4l/discord-base';
+import { EventHandler, Handler } from '@mich4l/discord-base';
 import { ExampleService } from '../services/exampleService';
 
-@Event()
+@Handler()
 class MessageDeletedEvent implements EventHandler {
     constructor(
         private readonly exampleService: ExampleService

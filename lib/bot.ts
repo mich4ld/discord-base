@@ -19,7 +19,7 @@ export class DiscordBot {
     private messageHandler: any;
 
 
-    constructor(config: InputDiscordConfig) {
+    constructor(config: InputDiscordConfig = {}) {
         const { appConfig, clientConfig } = buildConfig(config);
         this.config = appConfig;
 
