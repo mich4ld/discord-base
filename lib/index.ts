@@ -6,3 +6,5 @@ export { DiscordBot } from './bot';
 export { CommandHandler, EventHandler } from './commands';
 
 export { joinArgs, parseCommand } from './utils';
+
+//export * from 'discord.js';
