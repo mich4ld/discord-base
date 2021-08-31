@@ -1,7 +1,7 @@
 import { ActivityOptions, Client, ClientEvents, Message } from 'discord.js';
 import { parseCommand } from "./utils";
 import { buildConfig, DEFAULT_INTENTS, DiscordConfig, InputDiscordConfig } from "./config";
-import { CommandHandler, EventHandler, executeCommandHandler, executeEventHandler, getEventHandler } from './handlers';
+import { CommandHandler, EventFromListener, EventHandler, executeCommandHandler, executeEventHandler, getEventHandler } from './handlers';
 import { BaseLogger, getLogger } from './logger';
 import { globals } from './globals';
 
@@ -16,12 +16,10 @@ export class DiscordBot {
     private logger: BaseLogger;
     private config: DiscordConfig;
     private client: Client<boolean>;
-
     // command sets:
     private commands: Map<string, Command> = new Map();
     private genericHandler?: typeof CommandHandler;
     private messageHandler?: typeof EventHandler;
-
 
     constructor(config: InputDiscordConfig = {}) {
         const { appConfig, clientConfig } = buildConfig(config);
@@ -40,6 +38,17 @@ export class DiscordBot {
     addEvent(event: keyof ClientEvents, handler: typeof EventHandler) {
         const handleFunc = getEventHandler(handler);
         this.client.on(event, handleFunc as any);
+        return this;
+    }
+
+    removeAllEvents(event: keyof ClientEvents) {
+        if (event === 'messageCreate') {
+            this.logger.warn('Removing "messageCreate" event is not allowed - ignoring method...');
+            return this;
+        }
+
+        this.client.removeAllListeners(event);
+        this.logger.info(`Removed all handlers from event: "${event}"`);
         return this;
     }
 
