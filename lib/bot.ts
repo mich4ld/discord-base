@@ -16,6 +16,7 @@ export class DiscordBot {
     private logger: BaseLogger;
     private config: DiscordConfig;
     private client: Client<boolean>;
+    private events: Map<typeof EventHandler, any> = new Map();
     // command sets:
     private commands: Map<string, Command> = new Map();
     private genericHandler?: typeof CommandHandler;
@@ -36,8 +37,26 @@ export class DiscordBot {
     }
 
     addEvent(event: keyof ClientEvents, handler: typeof EventHandler) {
-        const handleFunc = getEventHandler(handler);
-        this.client.on(event, handleFunc as any);
+        const registeredHandler = this.events.get(handler);
+        if (!registeredHandler) {
+            const handleFunc = getEventHandler(handler);
+            this.events.set(handler, handleFunc);
+            this.client.on(event, handleFunc as any);
+            return this;
+        }
+        
+        this.client.on(event, registeredHandler);
+        return this;
+    }
+
+    removeEvent(event: keyof ClientEvents, handler: typeof EventHandler) {
+        const registeredHandler = this.events.get(handler);
+        if (!registeredHandler) {
+            this.logger.warn(`Registered handler for "${event}" not found`);
+            return this;
+        }
+
+        this.client.removeListener(event, registeredHandler);
         return this;
     }
 
@@ -56,7 +75,6 @@ export class DiscordBot {
         this.commands.set(command, { roles, handler });
         return this;
     }
-
 
     addCommand(command: string, handler: typeof CommandHandler) {
         this.commands.set(command, { handler });
