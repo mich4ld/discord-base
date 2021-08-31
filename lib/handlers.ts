@@ -3,6 +3,10 @@ import Container from "typedi";
 import { logError } from "./utils";
 
 export class CommandHandler {
+    constructor(...services: any[]) {
+
+    }
+
     handle(msg: Message, args: string[]): any {
         console.log('Handling command')
     }
@@ -26,6 +30,10 @@ export type EventFromListener = (
 )
 
 export class EventHandler {
+    constructor(...services: any[]) {
+
+    }
+    
     handle(e: EventFromListener): any {
         console.log('Handling events')
     }

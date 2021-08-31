@@ -1,7 +1,8 @@
 import { ActivityOptions, Client, ClientEvents, Message } from 'discord.js';
-import { parseCommand, logError } from "./utils";
+import { parseCommand } from "./utils";
 import { buildConfig, DEFAULT_INTENTS, DiscordConfig, InputDiscordConfig } from "./config";
 import { CommandHandler, EventHandler, executeCommandHandler, executeEventHandler, getEventHandler } from './handlers';
+import { BaseLogger, getLogger } from './logger';
 
 interface Command {
     handler: typeof CommandHandler;
@@ -11,6 +12,7 @@ interface Command {
 type ClientSetup = (client: Client) => any;
 
 export class DiscordBot {
+    private logger: BaseLogger;
     private config: DiscordConfig;
     private client: Client<boolean>;
 
@@ -24,6 +26,8 @@ export class DiscordBot {
         const { appConfig, clientConfig } = buildConfig(config);
         this.config = appConfig;
 
+        this.logger = getLogger(this.config.logger);
+        this.logger.log('Creating client...');
         this.client = new Client({
             ...clientConfig,
             intents: clientConfig.intents || DEFAULT_INTENTS,
@@ -73,7 +77,7 @@ export class DiscordBot {
     removeCommand(command: string) {
         const isRemoved = this.commands.delete(command);
         if (isRemoved) {
-            console.log(`Notice: Command ${this.config.prefix}${command} has been removed`);
+            this.logger.notice(`Command ${this.config.prefix}${command} has been removed`);
         }
 
         return this;
@@ -81,12 +85,13 @@ export class DiscordBot {
 
     clearCommands() {
         this.commands.clear();
-        console.log(`Notice: All commands removed`);
+        this.logger.notice(`All commands removed`);
         return this;
     }
 
     destroy() {
         this.client.destroy();
+        this.logger.info(`Client destroyed`);
     }
 
     private configureActivity(activity?: ActivityOptions | string) {
@@ -106,7 +111,11 @@ export class DiscordBot {
                 await this.client.user.setUsername(name);
                 console.log(`Notice: Changed bot's name from ${oldName} to ${name}`);
             } catch (err) {
-                logError(err);
+                if (err instanceof Error) {
+                    this.logger.error(err.message);
+                }
+
+                this.logger.error(err);
             }
         }
     }
@@ -117,7 +126,11 @@ export class DiscordBot {
                 await this.client.user.setAvatar(url);      
                 console.log("Notice: Changed bot's avatar");
             } catch (err) {
-                logError(err);
+                if (err instanceof Error) {
+                    this.logger.error(err.message);
+                }
+
+                this.logger.error(err);
             }
         }
     }
@@ -169,11 +182,11 @@ export class DiscordBot {
         await this.configureName(this.config.name);
         await this.configureAvatar(this.config.avatarURL);
         
-        console.log(`Logged in as ${this.client.user?.tag}!`);
+        this.logger.info(`Logged in as ${this.client.user?.tag}!`);
     }
 
     private onError = (err: Error) => {
-        console.log(`Error: ${err.message}`)
+        this.logger.error(` ${err.message}`)
     }
 
     private bootstrapBot() {
