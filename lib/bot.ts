@@ -125,7 +125,7 @@ export class DiscordBot {
         if (this.client.user && url) {
             try {
                 await this.client.user.setAvatar(url);      
-                console.log("Notice: Changed bot's avatar");
+                this.logger.info("Changed bot's avatar");
             } catch (err) {
                 if (err instanceof Error) {
                     this.logger.error(err.message);
