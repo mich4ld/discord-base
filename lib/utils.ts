@@ -1,3 +1,6 @@
+import { globals } from "./globals";
+import { getLogger } from "./logger";
+
 export function joinArgs(args: string[]) {
     if (!args.length) {
         return;
@@ -18,9 +21,13 @@ export function parseCommand(content: string, prefix: string) {
 }
 
 export function logError(err: unknown) {
+    const logger = getLogger(globals.logger);
+
     if (err instanceof Error) {
-        console.log('Error:', err.message);
+        logger.error(err.message);
     } else {
-        console.log(`Error: Critical error`);
+        logger.error(`Critical error`);
     }
+
+    logger.error(err);
 }

@@ -1,5 +1,5 @@
 import { ActivityOptions, ClientOptions, Intents } from 'discord.js';
-import { BaseLogger } from './logger';
+import { BaseLogger, Logger } from './logger';
 
 export interface DiscordConfig {
     token: string;
@@ -8,7 +8,7 @@ export interface DiscordConfig {
     prefix: string;
     avatarURL?: string;
     ignoreBots?: boolean;
-    logger?: typeof BaseLogger,
+    logger: typeof BaseLogger,
 }
 
 export const DEFAULT_INTENTS = [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES];
@@ -39,7 +39,7 @@ export function buildConfig(config: InputDiscordConfig) {
         name: name,
         avatarURL: avatarURL,
         ignoreBots: ignoreBots || true,
-        logger: config.logger,
+        logger: config.logger || Logger,
     }
 
     return {

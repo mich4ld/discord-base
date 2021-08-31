@@ -3,6 +3,7 @@ import { parseCommand } from "./utils";
 import { buildConfig, DEFAULT_INTENTS, DiscordConfig, InputDiscordConfig } from "./config";
 import { CommandHandler, EventHandler, executeCommandHandler, executeEventHandler, getEventHandler } from './handlers';
 import { BaseLogger, getLogger } from './logger';
+import { globals } from './globals';
 
 interface Command {
     handler: typeof CommandHandler;
@@ -25,7 +26,7 @@ export class DiscordBot {
     constructor(config: InputDiscordConfig = {}) {
         const { appConfig, clientConfig } = buildConfig(config);
         this.config = appConfig;
-
+        globals.logger = this.config.logger;
         this.logger = getLogger(this.config.logger);
         this.logger.log('Creating client...');
         this.client = new Client({
@@ -109,7 +110,7 @@ export class DiscordBot {
             try {
                 const oldName = this.client.user.username;
                 await this.client.user.setUsername(name);
-                console.log(`Notice: Changed bot's name from ${oldName} to ${name}`);
+                this.logger.info(`Changed bot's name from ${oldName} to ${name}`);
             } catch (err) {
                 if (err instanceof Error) {
                     this.logger.error(err.message);

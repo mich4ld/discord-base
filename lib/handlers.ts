@@ -33,7 +33,7 @@ export class EventHandler {
     constructor(...services: any[]) {
 
     }
-    
+
     handle(e: EventFromListener): any {
         console.log('Handling events')
     }
@@ -41,7 +41,6 @@ export class EventHandler {
 
 function handlerError(err: unknown) {
     logError(err);
-    console.error(err);
 }
 
 export async function executeCommandHandler(handler: typeof CommandHandler, msg: Message, args: string[]) {

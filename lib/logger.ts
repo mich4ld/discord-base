@@ -1,25 +1,34 @@
 import chalk from 'chalk';
 import { Service } from './index'
 import Container from 'typedi';
+import { globals } from './globals';
+
+enum Colors {
+    Blurple = '#5865F2',
+    Green = '#57F287',
+    Yellow = '#FEE75C',
+    Fuchsia = '#EB459E',
+    Red = '#ED4245',
+    White = '#FFFFFF',
+    Black = '#000000',
+    Gray = '#636e72',
+}
 
 function getTimestamp() {
     const date = new Date();
-    //const stringDate = date.toLocaleDateString();
-    const stringTime = date.toLocaleTimeString();
-
-    return stringTime;
+    return date.toLocaleTimeString();
 }
 
-export function logWithLabel(labelValue: string, message: any, bgHex: string = '#5865F2', hex: string = '#FFFFFF') {
-    const label = chalk.bgHex(bgHex).hex(hex)(labelValue);
-    const timestamp = chalk.bold.hex('#636e72')(getTimestamp());
+export function logWithLabel(labelValue: string, message: any, bgHex: string = Colors.Blurple, hex: string = Colors.White) {
+    const label = chalk.bold.bgHex(bgHex).hex(hex)(labelValue);
+    const timestamp = chalk.bold.hex(Colors.Gray)(getTimestamp());
     console.log(label, timestamp, message, '\n');
 }
 
 @Service()
 export abstract class BaseLogger {
     error(message: any) {
-        logWithLabel(' Error: ', message, '#ED4245');
+        logWithLabel(' Error: ', message, Colors.Red);
     }
 
     log(message: any) {
@@ -27,15 +36,15 @@ export abstract class BaseLogger {
     }
 
     notice(message: any) {
-        logWithLabel(' Notice: ', message, '#EB459E');
+        logWithLabel(' Notice: ', message, Colors.Fuchsia);
     }
 
     warn(message: any) {
-        logWithLabel(' Warn: ', message, '#FEE75C', '#000000');
+        logWithLabel(' Warn: ', message, Colors.Yellow, Colors.Black);
     }
 
     info(message: any) {
-        logWithLabel(' Info: ', message, '#57F287', '#000000');
+        logWithLabel(' Info: ', message, Colors.Green, Colors.Black);
     }
 }
 
@@ -43,10 +52,13 @@ export abstract class BaseLogger {
 export class Logger extends BaseLogger {
 }
 
-export function getLogger(logger?: typeof BaseLogger) {
-    if (!logger) {
-        return Container.get<BaseLogger>(Logger);
+@Service()
+export class LoggerService {
+    get logger() {
+        return getLogger(globals.logger);
     }
+}
 
+export function getLogger(logger: typeof BaseLogger) {
     return Container.get<BaseLogger>(logger as typeof Logger);
 }
