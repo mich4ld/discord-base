@@ -1,9 +1,10 @@
-import { ActivityOptions, Client, ClientEvents, Message } from 'discord.js';
+import { Client, ClientEvents, Message } from 'discord.js';
 import { parseCommand } from "./utils";
 import { buildConfig, DEFAULT_INTENTS, DiscordConfig, InputDiscordConfig } from "./config";
-import { CommandHandler, EventFromListener, EventHandler, executeCommandHandler, executeEventHandler, getEventHandler } from './handlers';
+import { CommandHandler, EventHandler, executeCommandHandler, executeEventHandler, getEventHandler } from './handlers';
 import { BaseLogger, getLogger } from './logger';
 import { globals } from './globals';
+import { DiscordClient } from './client';
 
 interface Command {
     handler: typeof CommandHandler;
@@ -16,6 +17,7 @@ export class DiscordBot {
     private logger: BaseLogger;
     private config: DiscordConfig;
     private client: Client<boolean>;
+    private clientConfigurator: DiscordClient;
     private events: Map<typeof EventHandler, any> = new Map();
     // command sets:
     private commands: Map<string, Command> = new Map();
@@ -32,7 +34,7 @@ export class DiscordBot {
             ...clientConfig,
             intents: clientConfig.intents || DEFAULT_INTENTS,
         });
-
+        this.clientConfigurator = new DiscordClient(this.client);
         this.bootstrapBot();
     }
 
@@ -122,47 +124,6 @@ export class DiscordBot {
         this.logger.info(`Client destroyed`);
     }
 
-    private configureActivity(activity?: ActivityOptions | string) {
-        if (this.client.user && activity) {
-            if (typeof activity === 'string') {
-                this.client.user.setActivity({ name: activity });
-            } else {
-                this.client.user.setActivity(activity);
-            }
-        }
-    }
-
-    private async configureName(name?: string) {
-        if (this.client.user && name && this.client.user.username !== name) {
-            try {
-                const oldName = this.client.user.username;
-                await this.client.user.setUsername(name);
-                this.logger.info(`Changed bot's name from ${oldName} to ${name}`);
-            } catch (err) {
-                if (err instanceof Error) {
-                    this.logger.error(err.message);
-                }
-
-                this.logger.error(err);
-            }
-        }
-    }
-
-    private async configureAvatar(url?: string) {
-        if (this.client.user && url) {
-            try {
-                await this.client.user.setAvatar(url);      
-                this.logger.info("Changed bot's avatar");
-            } catch (err) {
-                if (err instanceof Error) {
-                    this.logger.error(err.message);
-                }
-
-                this.logger.error(err);
-            }
-        }
-    }
-
     setupClient(method: ClientSetup) {
         method(this.client);
         return this;
@@ -206,10 +167,7 @@ export class DiscordBot {
     }
 
     private onReady = async () => {
-        this.configureActivity(this.config.activity);
-        await this.configureName(this.config.name);
-        await this.configureAvatar(this.config.avatarURL);
-        
+        await this.clientConfigurator.configureClient(this.config);
         this.logger.info(`Logged in as ${this.client.user?.tag}!`);
     }
 
