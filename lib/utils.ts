@@ -1,6 +1,11 @@
 import { globals } from "./globals";
 import { getLogger } from "./logger";
 
+export function getTimestamp() {
+    const date = new Date();
+    return date.toLocaleTimeString();
+}
+
 export function joinArgs(args: string[]) {
     if (!args.length) {
         return;

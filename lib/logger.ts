@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { Service } from './index'
 import Container from 'typedi';
 import { globals } from './globals';
+import { getTimestamp } from './utils';
 
 enum Colors {
     Blurple = '#5865F2',
@@ -14,18 +15,12 @@ enum Colors {
     Gray = '#636e72',
 }
 
-function getTimestamp() {
-    const date = new Date();
-    return date.toLocaleTimeString();
-}
-
-export function logWithLabel(labelValue: string, message: any, bgHex: string = Colors.Blurple, hex: string = Colors.White) {
+function logWithLabel(labelValue: string, message: any, bgHex: string = Colors.Blurple, hex: string = Colors.White) {
     const label = chalk.bold.bgHex(bgHex).hex(hex)(labelValue);
     const timestamp = chalk.bold.hex(Colors.Gray)(getTimestamp());
     console.log(label, timestamp, message, '\n');
 }
 
-@Service()
 export abstract class BaseLogger {
     error(message: any) {
         logWithLabel(' Error: ', message, Colors.Red);
@@ -49,8 +44,7 @@ export abstract class BaseLogger {
 }
 
 @Service()
-export class Logger extends BaseLogger {
-}
+export class Logger extends BaseLogger {}
 
 @Service()
 export class LoggerService {
