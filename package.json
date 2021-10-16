@@ -1,6 +1,6 @@
 {
   "name": "@mich4l/discord-base",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "TypeScript Discord.js abstraction",
   "main": "dist/index.js",
   "repository": {
